@@ -21,6 +21,7 @@
         <link rel="stylesheet" href="css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="css/main.css">
         <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
     </head>
     <body>
         <!--[if lt IE 8]>
@@ -44,17 +45,90 @@
     <div class="container" id="contents">
       <!-- Example row of columns -->
       <div class="row">
-        <div class="col-md-3">
-            <a href="egypti.html">Egypti</a><br />
-            <a href="muuttuva_kasitys.html">Käsitys aivojen roolista muuttuu</a><br />
-            <a href="kartanPilkkominen.html">r Kartan pilkkominen</a><br />
-			<a href="lineaarinenMalli.html">r Lineaarinen malli</a><br />
-			<a href="aikasarja.html">r Aikasarja</a><br />
-			<a href="klusterointi.html">Klusterointi</a><br />
-			<a href="jakaumastaRiippumattomatTestit.html">Jakaumasta riippumattomat testit</a><br />
-			<a href="leaflet_02.html">Leaflet</a>
+        <div class="col-md-3"></div>
+		<!-- Leipäteksti alkaa -->
+        <div class="col-md-9">  
+		
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Jakaumasta riippumattomat testit</h1>
+<h4 class="author"><em>Raimo Haikari</em></h4>
+<h4 class="date"><em>28 marraskuuta 2017</em></h4>
+
+</div>
+
+
+<p>Testeissä käsitellään diskreettejä jakaumia edustavia multinomiaalisia satunnaismuuttujia.</p>
+<p>Testit jakautuvat kolmeen pääryhmään:</p>
+<ol style="list-style-type: decimal">
+<li>testataan ovatko havaitut arvot peräisin oletetusta jakaumasta</li>
+<li>testataan ovatko kaksi luokitteluun käytettyä muuttujaa itsenäisiä</li>
+<li>verrataan suhteita</li>
+</ol>
+<p>Khiin neliötesti</p>
+<p>Khiin neliötestillä tutkitaan ovatko havaitut arvot odotetun jakauman mukaisia.</p>
+<p>Laskettava testimuuttuja noudattaa khiin neliöjakaumaa vapausastein f = k - 1, jos nollahypoteesi on tosi.</p>
+<p>Ehdot:</p>
+<ul>
+<li>korkeintaan 20% teoreettisista saa olla alle 5.</li>
+<li>yksikään teoreettinen frekvenssi ei saa olla pienempi kuin 1.</li>
+</ul>
+<p>Harjoitus 15.2.4</p>
+<p>Oletuksen mukaan tietyn alan työntekijöistä on:</p>
+<ul>
+<li>40 % valkoisia miehiä.</li>
+<li>30 % valkoisia naisia.</li>
+<li>5% mustia naisia</li>
+<li>15% mustia miehiä</li>
+<li>10% muita.</li>
+</ul>
+<p>Oletusta testattiin satunnaisesti valitussa firmassa, jonka 200:sta työntekijästä oli:</p>
+<ul>
+<li>95 valkoista miestä</li>
+<li>50 valkoista naista</li>
+<li>2 mustaa naista</li>
+<li>20 mustaa miestä</li>
+<li>33 muita.</li>
+</ul>
+<p>Oliko havaittu työntekijäjakauma odotetun jakauman mukainen?</p>
+<pre class="r"><code>rm(list=ls())
+
+e.probs = c(0.4, 0.3, 0.05,0.15,0.1) # Odotetut prosenttiosuudet
+
+o = c(95,50,2,20,33)                 # Havaitut frekvenssit
+n = sum(o)
+
+e = n * e.probs                      # Odotetut frekvenssit
+
+df = data.frame(e,o)
+colnames(df) = c(&quot;Odotetut&quot;,&quot;Havaitut&quot;)
+
+vapausAsteet = nrow(df) - 1
+
+testisuure = sum(((df$Havaitut - df$Odotetut)^2) / df$Odotetut)
+testisuure # 22.6625</code></pre>
+<pre><code>## [1] 22.6625</code></pre>
+<pre class="r"><code>pchisq(testisuure, df = vapausAsteet, lower.tail = FALSE)</code></pre>
+<pre><code>## [1] 0.0001478794</code></pre>
+<p>Testisuuretta vastaava p-Arvo 0.0001478794 on niin pieni, että kaikilla yleisimmin käytetyillä merkitsevyystasoilla nollahypoteesi, että havaitut frekvenssit ovat odotetun jakauman mukaisia voidaan hylätä.</p>
+<p>Saman tulokset saa R:n chisq.test -funktiolla:</p>
+<pre class="r"><code>chisq.test(o, p=e.probs) </code></pre>
+<pre><code>## 
+##  Chi-squared test for given probabilities
+## 
+## data:  o
+## X-squared = 22.662, df = 4, p-value = 0.0001479</code></pre>
+
+
+
+
+</div>		
+		
+		
+		
         </div>
-        <div class="col-md-9"></div>
       </div>
 
       <hr>

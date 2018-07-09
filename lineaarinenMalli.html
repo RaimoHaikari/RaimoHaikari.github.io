@@ -1,0 +1,291 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 50px;
+                padding-bottom: 20px;
+            }
+        </style>
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Project name</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>        
+    <div class="container" id="contents">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-9">  
+		
+<section>		
+	<h3>Lineaarinen malli</h3>
+	<p>Regressiomallit mallintavat kohde- ja atribuuttimuuttujien välistä syy–seuraussuhdetta.</p>
+	<p>Yksinkertaisin regressiomalli on lineaarinen malli, jossa tarkasteltavaa ilmiötä pyritään kuvaamaan yhden selittävän muuttujan avulla.</p>
+	<p>Kirjan esimerkissä aineistona käytetään <strong>UCI Machine Learning Repository:sta</strong> löytyvää 
+	<a href="https://archive.ics.uci.edu/ml/datasets/Challenger+USA+Space+Shuttle+O-Ring" target="_blank">Challenger USA Space Shuttle O-Ring</a> aineistoa,
+	jonka avulla pyritään arviomaan tiivisteiden rasitustason ja laukaisuhetken lämpötilan välistä suhdetta.</p>	
+	<p>Tämän ohjeen mallina on käytetty <strong>r-statistics.co</strong> -sivustolta löytyvää <a href="http://r-statistics.co/Linear-Regression.html" target="_blank">opasta</a>.
+</section>
+
+<section>
+	<h4>Tarvittavat paketit</h4>
+	<p>Asennetaan tehtävän yhteydessä käytettävät paketit.</p>
+<pre>
+library(ggplot2)
+library(e1071)
+</pre>
+</section>
+
+<section>
+	<h4>Aineisto</h4>
+	<p>Luetaan aineiston sisältävä csv-tiedosto.</p>
+<pre>
+fileName = "data/SpaceShuttle.txt"
+spaceShuttle = read.csv(fileName, header = T, sep=";")
+</pre>
+	<p>Tavoitteena on siis rakentaa lineaarine malli muuttujien:</p>
+	<ul>
+		<li>Launch Temoerature</li>
+		<li>Number of O-Rings with Stress</li>
+	</ul>
+	<p>välille.</p>
+</section>
+
+<section>
+	<h4>Järkevyystarkastelu</h4>
+	<p>Ennen kuin mallia on järkevää rakentaa, on syytä pohtia voiko muuttujien välillä vallita syy-seurausyhteys.</p>
+	<p>Esimerkin tapauksessa tuntuisi hyvinkin luontevalta, että laukaisulämpötila osaltaan vaikuttaisi siihen kuinka kovalle koetukselle tiivisteet joutuvat.</p>
+</section>
+
+
+<section>
+	<h4>Graafinen tarkastelu</h4>
+	<p>Jos aineisto läpäisee järkevyystarkastelun, seuraavassa vaiheessa muuttujien arvoja tutkitaan graafisesti. Tyypillisesti aineistosta tulostetaan seuraavat graafit:</p>
+	<ul>
+		<li>Scatter plot</strong></li>
+		<li>Box plot</li>
+		<li>Density plot</li>
+	</ul>
+	</p>
+</section>
+
+<section>
+	<h4>Scatter plot</h4>
+	<p>
+	Hajontakuvion avulla tarkastellaan onko mielekästä yrittää mallintaa viivalla selittävän ja selitettävän muuttujan välistä suhdetta. 
+	Mikäli selittäviä muuttujia on useampia, piirretään niistä jokaisesta oma hajontakuvionsa.</p>
+<pre>
+scatter.smooth(x=spaceShuttle$Launch.Temperature,
+			   y=spaceShuttle$Number.of.O.Rings.with.Stress,
+			   xlab = "Launch Temperature",
+			   ylab = "Number of O-Rings with Stress")
+</pre>
+	<figure>
+		<img src="images/ch2_scatter_plot_space_shuttle.png" alt="Scatter plot: Launch Temperature ja Number of O-Rings with Stress">
+		<figcaption>Hajontakuvio ja mukaan piirretty "<a href="">smoothing line</a>" antavat ymmärtää, että muuttujien välistä suhdetta voidaan mallintaa lineaarisen mallin avulla.</figcaption>
+	</figure>
+</section>
+<h1>Huom. Liukuvan keskiarvon käyttö, AMK 265: ".. sitä vähemmän tapahtuu tasoitusta (smoothing)"</h1>
+
+
+<section>
+	<h4>Boxplot</h4>
+	<p>Laatikkokuvion avulla tutkitaan sisältääkö aineisto poikkeavia havaintoja. 
+	Tyypillisesti 1.5 * kvartaalivälin ulkopuolelle sijoittuvia arvoja pidetään poikkeavina havaintoina. 
+	Kvarttaaliväli saadaan laskettua muuttujan 25 %:n ja 75 %:n prosenttipisteiden erotuksena.</p>
+<pre>
+par(mfrow=c(1, 2))  # Jaetaan tulostualue kahteen sarakkeeseen
+
+boxplot(spaceShuttle$Launch.Temperature, 
+		main="Launch Temperature", 
+		sub=paste("Poikkeavat arvot: ", boxplot.stats(spaceShuttle$Launch.Temperature)$out)
+		)  
+boxplot(spaceShuttle$Number.of.O.Rings.with.Stress, 
+		main="Stressitaso", 
+		sub=paste("Poikkeavat arvot: ", boxplot.stats(spaceShuttle$Number.of.O.Rings.with.Stress)$out)
+		) 
+</pre>
+	<figure>
+		<img src="images/ch2_boxplot.png" alt="Box plot: Launch Temperature ja Number of O-Rings with Stress">
+		<figcaption>Molemmissa muuttujissa näyttäisi olevan yksi tietue, jota voisi pitää aineistosta poikkeavina arvoina.</figcaption>
+	</figure>
+</section>
+
+<section>
+	<h4>Density plot</h4>
+	<p>Tiheysjakauman avulla tutkitaan selittävän muuttujan jakaumaa. Ideaalitapauksesa se noudattaa normaalijakaumaa.</p>
+<pre>
+par(mfrow=c(1, 2))  # divide graph area in 2 columns
+plot(density(spaceShuttle$Launch.Temperature), 
+	 main="Launch Temperature", 
+	 ylab="Frequency", 
+	 sub=paste("Skewness:", round(e1071::skewness(spaceShuttle$Launch.Temperature), 2)))
+polygon(density(spaceShuttle$Launch.Temperature), col="red")
+
+plot(density(spaceShuttle$Number.of.O.Rings.with.Stress), 
+	 main="Number of O-Rings with Stress", 
+	 ylab="Frequency", 
+	 sub=paste("Skewness:", round(e1071::skewness(spaceShuttle$Number.of.O.Rings.with.Stress), 2)))
+polygon(density(spaceShuttle$Number.of.O.Rings.with.Stress), col="red")
+</pre>
+	<figure>
+		<img src="images/ch2_density_plot.png" alt="Box plot: Launch Temperature ja Number of O-Rings with Stress">
+		<figcaption>Selittävän muuttujan arvoja kuvaava graafi muistuttaa jossain määrin normaalijakaumaa, mutta selitettävän muuttujan arvossa näkyy selkeästi kolme erillistä keskittymää.</figcaption>
+	</figure>
+</section>
+
+
+<section>
+	<h4>Korrelaatiokerroin</h4>
+	<p>Korrelaatiokerroin mittaa muuttujien välistä lineaarista yhteyttä. Tyypillisesti lasketaan <a href="https://fi.wikipedia.org/wiki/Korrelaatio" target="_blank">Pearsonin korrelaatiokerroin</a>, jonka arvot voivat vaihdella välillä [-1,1].</p>
+	<ul>
+		<li>Lähellä yhtä olevat arvot kertovat muuttujien välisestä positiivisesta yhteydestä, tällöin selitettävän muuttujan arvot kasvavat selittävän muuttujan arvojen kasvaessa.</li>
+		<li>Lähellä miinus yhtä olevat arvot kertovat puolestaan negatiivisesta yhteydestä, jolloin selitettävän muuttujan arvot pienenevät selittävän muuttujan arvojen kasvaessa.</li>
+		<li>Lähellä nollaa oleva korrelaatiokerroin kertoo siitä, että muuttujien välillä ei ole lineaarista yhteyttä.</li>
+	</ul>
+	<p>Korrelaatiokertoimen avulla voidaan laskea selityskerroin <strong>R<sup>2</sup></strong>, joka tarjoaa yhden tavan arvoidan saadun mallin luotettavuutta.</p>
+	<p><em>Huom. Korrelaatiokerroin kertoo tilastollisesta yhteydestä, suurikaan kertoimen itseisarvo ei vielä tarkoita muuttujien välillä vallitsevan syy-seurausyhteyttä.</em></p>
+<pre>
+korrelaatiokerroin = cor(spaceShuttle$Launch.Temperature, spaceShuttle$Number.of.O.Rings.with.Stress)
+korrelaatiokerroin # -0.725671
+</pre>
+</section>
+
+<section>
+	<h4>Mallin rakentaminen</h4>
+	<p>Kun alkutarkastelujen perusteella ollaan vakuuttuneita siitä, että muuttujien välille voidaan rakentaa lineaarinen malli, niin syötetään tarvittavat arvot R:n lm -funktiolle.</p>
+	<p>Funktiolle annetaan minimissään kaksi parametriä:</p>
+	<ul>
+		<li>tarkasteltavien muuttujien nimet ilmaistuna: selitttävä muuttuja ~ selittävä muuttuja
+		<li>aineiston sisältävä datataulu.</li>
+	</ul>
+<pre>
+linearMod <- lm(Number.of.O.Rings.with.Stress ~ Launch.Temperature, data=spaceShuttle)
+print(linearMod)
+
+# Call:
+# lm(formula = Number.of.O.Rings.with.Stress ~ Launch.Temperature, 
+#    data = spaceShuttle)
+# 
+# Coefficients:
+#        (Intercept)  Launch.Temperature  
+#            4.30159            -0.05746
+</pre>
+	<p>Lineaarisen mallin määrittäviksi regressiokertoimiksi saadaan:</p>
+	<ul>
+		<li>b0 = 4.30159. Termi kertoo pisteen, jossa suora leikkaa y-akselin.</li>
+		<li>b1 = -0.05746. Termi kertoo suoran kulmakertoimen.</li>
+	</ul>
+	<p>Näin ollen lineaarisen mallin yhtälö on:  y<sub>i</sub> = 4.30159 -0.05746x<sub>i</sub> + e<sub>i</sub>. Termillä e<sub>i</sub> tarkoitetaan <a href="http://tilastokoulu.stat.fi/verkkokoulu_v2.xql?page_type=esim&course_id=tkoulu_tilaj&lesson_id=4&subject_id=10&example_id=1" target="_blank">jäännösvirhettä</a>.</p>
+</section>
+
+<section>
+	<h4>Kuvaajan tulostaminen</h4>
+	<p>Tässä vaiheessa voidaan tulostaa suoran kuvaaja pistejoukon yhteyteen ja tarkastella mallin toimivuutta.</p>
+<pre>
+gg <- ggplot(spaceShuttle, aes(x=Launch.Temperature, y=Number.of.O.Rings.with.Stress)) +
+  labs(x="Launch Temperature", 
+       y="Number of O-Rings with Stress ") + 
+  geom_point()
+# - lisätään suora
+p1 <- gg + geom_abline(intercept = linearMod$coefficients[1], 
+                       slope = linearMod$coefficients[2],
+                       size=1, linetype="solid", color="red")
+</pre>
+<img src="images/suoran_kuvaaja.png" alt="Lineaarisen mallin kuvaaja">
+</section>
+
+<section>
+	<h4>Mallin hyvyys</h4>
+	<p>Ennen mallin käyttämistä, täytyy arvioida sen käyttökelpoisuutta. Tätä varten on olemassa tilastollisia mittareita.</p>
+	<p>Aloitetaan tulostamalla mallista yhteenveto.</p>
+<pre>
+summary(linearMod)
+
+# Call:
+# lm(formula = Number.of.O.Rings.with.Stress ~ Launch.Temperature, 
+#    data = spaceShuttle)
+#
+# Residuals:
+#       Min       1Q   Median       3Q      Max 
+# -0.50921 -0.30810  0.00794  0.20905  0.74381 
+# 
+# Coefficients:
+#                    Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)         4.30159    0.83110   5.176 3.96e-05 ***
+# Launch.Temperature -0.05746    0.01189  -4.833 8.90e-05 ***
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# Residual standard error: 0.3935 on 21 degrees of freedom
+# Multiple R-squared:  0.5266,	Adjusted R-squared:  0.5041 
+# F-statistic: 23.36 on 1 and 21 DF,  p-value: 8.895e-05
+</pre>
+<p>Yhteenveto kertoo meille joukon asioita. Yksi niistä on viimeisellä rivillä oleva mallin p-arvo ja Coefficients otsikon alta löytyvät regressiokertoimien p-arvot.</p>
+<p>p-arvoa pidetään tärkeänä, koska saadun mallin ajatellaan olevan tilastollisesti merkitsevä vain mikäli p-arvot alittava etukäteen asetetun merkitsevyystason, jona usein käytetään arvoa 0.05.</p>
+<h5>Nollahypoteesi ja vastahypoteesihypoteesi.</h5>
+<p>Lineaarisessa mallissa nollahypoteesina on, että selittävät muuttujat eivät vaikuta selittävään muuttujaa, jolloin selittävien muuttujien regressiokertoimet ovat nollia. Vastahypoteesina on, että selittävät muuttuja vaikuttavat selittävään muuttujaan, jolloin myös kertoimien arvot poikkeavat nollasta.</p>
+<p>Saatujen kertoimien merkitsevyyttä arvioidaan t- ja p-arvoilla:</p>
+	<ul>
+		<li>mitä suurempi t-arvo, sitä pienempi on todennäköisyys, että saatu kerroin on vain sattumalta erisuuri kuin nolla. Siis mitä suurempi t-arvo, sitä parempi.</li>
+		<li>mitä pienempi p-arvo, sitä pienempi on todennäköisyys, että nollahypoteesin vallitessa saatiin saatujen t-arvojen suuruusluokkaa olevat arvo sattumalta.</li>
+	</ul>
+<p>Näin ollen, jos p-arvo on pienempi kuin asetettu merkitsevyystaso, esim. < 0.05, uskallamme hylätä nollahypoteesin, että regressiokertoimen merkitys on nolla.</p>
+</section>
+
+        </div>
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; Raimo Haikari 2017</p>
+      </footer>
+    </div> <!-- /container -->        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
+
+        <script src="js/vendor/bootstrap.min.js"></script>
+
+        <script src="js/main.js"></script>
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X','auto');ga('send','pageview');
+        </script>
+    </body>
+</html>
