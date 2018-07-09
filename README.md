@@ -1,3 +1,7 @@
+# Hei
+
+Ois huimaa, jos tää lähtis tästä nyt etenee...
+
 ## Welcome to GitHub Pages
 
 You can use the [editor on GitHub](https://github.com/RaimoHaikari/RaimoHaikari.github.io/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
